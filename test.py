@@ -3,7 +3,7 @@ from rsa import generateKeys, encrypt
 from hmac_imp import hmac_sha256
 from utils import timeTaken
 
-message = "Hossam"
+message = "Hello World"
 message_bytes = message.encode()
 key_16_bytes = b"thisisasecretkey"  # 16-byte key for AES and HMAC
 

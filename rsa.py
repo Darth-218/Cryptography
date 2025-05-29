@@ -1,7 +1,5 @@
 #!/bin/python3
 
-# 16-bit RSA implementation
-
 from time import time, perf_counter
 
 def gcd(a: int, b: int) -> int:
@@ -266,26 +264,20 @@ def encrypt(message: str, e: int, n: int) -> bytes:
         
     n_byte_size = (n.bit_length() + 7) // 8
     
-    # Break message into blocks
     blocks = [message_bytes[i : i + max_block_size] for i in range(0, len(message_bytes), max_block_size)]
     encrypted_bytes = b""
     
     for i, block in enumerate(blocks):
-        # Pad block if necessary
         if len(block) < max_block_size:
-            # Use PKCS7-style padding to ensure we can recover the original length
             padding_length = max_block_size - len(block)
             block = block + bytes([padding_length] * padding_length)
             
-        # Convert block to integer
         m = int.from_bytes(block, byteorder="big")
         if m >= n:
             raise ValueError(f"Message block {i+1} is too large for the given key size")
             
-        # Encrypt block
         c = pow(m, e, n)
         
-        # Convert to bytes with consistent size
         encrypted_block = c.to_bytes(n_byte_size, byteorder="big")
         encrypted_bytes += encrypted_block
         
@@ -303,19 +295,15 @@ def decrypt(encrypted_bytes: bytes, d: int, n: int) -> str:
     
     for i, block in enumerate(blocks):
         try:
-            # Convert block to integer
             c = int.from_bytes(block, byteorder="big")
             if c >= n:
                 raise ValueError(f"Block {i+1}: Encrypted value is larger than modulus")
             
-            # Decrypt the block
             m_decrypted = pow(c, d, n)
             
-            # For all blocks except the last one, use fixed block size
             if i < len(blocks) - 1:
                 block_bytes = m_decrypted.to_bytes(max_block_size, byteorder="big")
             else:
-                # For the last block, handle padding
                 try:
                     block_bytes = m_decrypted.to_bytes(max_block_size, byteorder="big")
                 except OverflowError:
@@ -330,15 +318,12 @@ def decrypt(encrypted_bytes: bytes, d: int, n: int) -> str:
             raise ValueError(f"Decryption failed: {str(e)}")
     
     try:
-        # Handle PKCS7 padding removal
         if decrypted_bytes:
             padding_length = decrypted_bytes[-1]
             if padding_length > 0 and padding_length <= max_block_size:
-                # Verify the padding is correct
                 if all(x == padding_length for x in decrypted_bytes[-padding_length:]):
                     decrypted_bytes = decrypted_bytes[:-padding_length]
         
-        # Try to decode as UTF-8
         return decrypted_bytes.decode('utf-8')
     except UnicodeDecodeError:
         raise ValueError("Decryption failed: The keys used for decryption don't match the encryption keys")

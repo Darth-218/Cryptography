@@ -1,249 +1,297 @@
-const rsaCheckbox = document.getElementById('rsaCheckbox');
-const hmacCheckbox = document.getElementById('hmacCheckbox');
-const aesCheckbox = document.getElementById('aesCheckbox');
-const rsaResult = document.getElementById('rsaResult');
-const hmacResult = document.getElementById('hmacResult');
-const aesResult = document.getElementById('aesResult');
-const errorMessage = document.getElementById('errorMessage');
-const startButton = document.getElementById('startButton');
-const hmacKeyInput = document.getElementById('hmacKey');
-const aesKeyInput = document.getElementById('aesKey');
-const hmacKeyContainer = document.getElementById('hmacKeyContainer');
-const aesKeyContainer = document.getElementById('aesKeyContainer');
-const rsaKeyContainer = document.getElementById('rsaKeyContainer');
-const rsaEncryptFields = document.getElementById('rsaEncryptFields');
-const rsaDecryptFields = document.getElementById('rsaDecryptFields');
-const encryptRadio = document.getElementById('encrypt');
-const decryptRadio = document.getElementById('decrypt');
-const rsaModulus = document.getElementById('rsaModulus');
-const rsaPrivate = document.getElementById('rsaPrivate');
+const cryptoService = {
+    baseUrl: 'http://localhost:5000',
 
-// Key display elements
-const rsaKeyDisplay = document.getElementById('rsaKeyDisplay');
-const hmacKeyDisplay = document.getElementById('hmacKeyDisplay');
-const aesKeyDisplay = document.getElementById('aesKeyDisplay');
-const rsaKeyText = document.getElementById('rsaKeyText');
-const hmacKeyText = document.getElementById('hmacKeyText');
-const aesKeyText = document.getElementById('aesKeyText');
+    async rsaEncrypt(message) {
+        const response = await fetch(`${this.baseUrl}/rsa/encrypt`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message })
+        });
 
-function updateVisibility() {
-  const isEncrypt = encryptRadio.checked;
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'RSA encryption failed');
+        }
 
-  // Hide HMAC option completely in decrypt mode
-  const hmacOption = document.querySelector('[for="hmacCheckbox"]').parentElement;
-  hmacOption.style.display = isEncrypt ? 'block' : 'none';
-  if (!isEncrypt) {
-    hmacCheckbox.checked = false;
-  }
+        return response.json();
+    },
 
-  rsaResult.style.display = rsaCheckbox.checked ? 'block' : 'none';
-  rsaKeyDisplay.style.display = rsaCheckbox.checked ? 'block' : 'none';
-  hmacResult.style.display = hmacCheckbox.checked ? 'block' : 'none';
-  hmacKeyDisplay.style.display = hmacCheckbox.checked ? 'block' : 'none';
-  aesResult.style.display = aesCheckbox.checked ? 'block' : 'none';
-  aesKeyDisplay.style.display = aesCheckbox.checked ? 'block' : 'none';
+    async rsaDecrypt(encrypted, n, d) {
+        const response = await fetch(`${this.baseUrl}/rsa/decrypt`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ encrypted, n, d })
+        });
 
-  hmacKeyContainer.style.display = hmacCheckbox.checked ? 'block' : 'none';
-  aesKeyContainer.style.display = aesCheckbox.checked ? 'block' : 'none';
-  rsaKeyContainer.style.display = rsaCheckbox.checked ? 'block' : 'none';
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'RSA decryption failed');
+        }
 
-  if (rsaCheckbox.checked) {
-    rsaEncryptFields.style.display = isEncrypt ? 'block' : 'none';
-    rsaDecryptFields.style.display = isEncrypt ? 'none' : 'block';
-  }
+        return response.json();
+    },
 
-  errorMessage.style.display = 'none';
+    async hmacSign(message, key) {
+        const response = await fetch(`${this.baseUrl}/hmac/sign`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message, key })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'HMAC signing failed');
+        }
+
+        return response.json();
+    },
+
+    async aesEncrypt(message, key) {
+        const response = await fetch(`${this.baseUrl}/aes/encrypt`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message, key })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'AES encryption failed');
+        }
+
+        return response.json();
+    },
+
+    async aesDecrypt(encrypted, key) {
+        const response = await fetch(`${this.baseUrl}/aes/decrypt`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ encrypted, key })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'AES decryption failed');
+        }
+
+        return response.json();
+    }
+};
+
+const elements = {
+    rsaCheckbox: document.getElementById('rsaCheckbox'),
+    hmacCheckbox: document.getElementById('hmacCheckbox'),
+    aesCheckbox: document.getElementById('aesCheckbox'),
+
+    rsaResult: document.getElementById('rsaResult'),
+    hmacResult: document.getElementById('hmacResult'),
+    aesResult: document.getElementById('aesResult'),
+
+    errorMessage: document.getElementById('errorMessage'),
+
+    startButton: document.getElementById('startButton'),
+
+    hmacKeyInput: document.getElementById('hmacKey'),
+    aesKeyInput: document.getElementById('aesKey'),
+
+    hmacKeyContainer: document.getElementById('hmacKeyContainer'),
+    aesKeyContainer: document.getElementById('aesKeyContainer'),
+    rsaKeyContainer: document.getElementById('rsaKeyContainer'),
+
+    rsaEncryptFields: document.getElementById('rsaEncryptFields'),
+    rsaDecryptFields: document.getElementById('rsaDecryptFields'),
+
+    encryptRadio: document.getElementById('encrypt'),
+    decryptRadio: document.getElementById('decrypt'),
+
+    rsaModulus: document.getElementById('rsaModulus'),
+    rsaPrivate: document.getElementById('rsaPrivate'),
+
+    input: document.querySelector('.text-input'),
+
+    rsaKeyDisplay: document.getElementById('rsaKeyDisplay'),
+    hmacKeyDisplay: document.getElementById('hmacKeyDisplay'),
+    aesKeyDisplay: document.getElementById('aesKeyDisplay'),
+
+    rsaKeyText: document.getElementById('rsaKeyText'),
+    hmacKeyText: document.getElementById('hmacKeyText'),
+    aesKeyText: document.getElementById('aesKeyText'),
+};
+
+const validation = {
+    showError(message) {
+        elements.errorMessage.textContent = message;
+        elements.errorMessage.style.display = 'block';
+    },
+
+    hideError() {
+        elements.errorMessage.style.display = 'none';
+    },
+
+    validateInput() {
+        const inputText = elements.input.value.trim();
+
+        if (!elements.rsaCheckbox.checked && !elements.hmacCheckbox.checked && !elements.aesCheckbox.checked) {
+            throw new Error('Please select at least one algorithm!');
+        }
+
+        if (!inputText) {
+            throw new Error('Please enter some text to process!');
+        }
+
+        if (elements.hmacCheckbox.checked && !elements.hmacKeyInput.value.trim()) {
+            throw new Error('Please enter an HMAC key!');
+        }
+
+        if (elements.aesCheckbox.checked && !elements.aesKeyInput.value.trim()) {
+            throw new Error('Please enter an AES key!');
+        }
+
+        return inputText;
+    },
+
+    validateRsaDecryption(inputText) {
+        const hexInput = inputText.replace(/\s+/g, '');
+        const modulus = elements.rsaModulus.value.trim();
+        const privateKey = elements.rsaPrivate.value.trim();
+
+        if (!hexInput || !modulus || !privateKey) {
+            throw new Error('Please enter the encrypted message (in hex format), modulus (n), and private key (d)!');
+        }
+
+        if (!/^[0-9A-Fa-f]+$/.test(hexInput)) {
+            throw new Error('For RSA decryption, the input must be in hexadecimal format (e.g., "1A2B3C")');
+        }
+
+        if (!/^\d+$/.test(modulus) || !/^\d+$/.test(privateKey)) {
+            throw new Error('The modulus (n) and private key (d) must be valid positive integers');
+        }
+
+        if (BigInt(modulus) <= BigInt(0) || BigInt(privateKey) <= BigInt(0)) {
+            throw new Error('The modulus (n) and private key (d) must be positive numbers');
+        }
+
+        return { hexInput, modulus, privateKey };
+    }
+};
+
+const ui = {
+    updateVisibility() {
+        const isEncrypt = elements.encryptRadio.checked;
+        
+        const hmacOption = document.querySelector('[for="hmacCheckbox"]').parentElement;
+        hmacOption.style.display = isEncrypt ? 'block' : 'none';
+        if (!isEncrypt) {
+            elements.hmacCheckbox.checked = false;
+        }
+
+        elements.rsaResult.style.display = elements.rsaCheckbox.checked ? 'block' : 'none';
+        elements.rsaKeyDisplay.style.display = elements.rsaCheckbox.checked ? 'block' : 'none';
+
+        elements.hmacResult.style.display = elements.hmacCheckbox.checked ? 'block' : 'none';
+        elements.hmacKeyDisplay.style.display = elements.hmacCheckbox.checked ? 'block' : 'none';
+
+        elements.aesResult.style.display = elements.aesCheckbox.checked ? 'block' : 'none';
+        elements.aesKeyDisplay.style.display = elements.aesCheckbox.checked ? 'block' : 'none';
+
+        elements.hmacKeyContainer.style.display = elements.hmacCheckbox.checked ? 'block' : 'none';
+        elements.aesKeyContainer.style.display = elements.aesCheckbox.checked ? 'block' : 'none';
+        elements.rsaKeyContainer.style.display = elements.rsaCheckbox.checked ? 'block' : 'none';
+
+        if (elements.rsaCheckbox.checked) {
+            elements.rsaEncryptFields.style.display = isEncrypt ? 'block' : 'none';
+            elements.rsaDecryptFields.style.display = isEncrypt ? 'none' : 'block';
+        }
+
+        validation.hideError();
+    },
+
+    clearResults() {
+        elements.rsaResult.value = '';
+        elements.hmacResult.value = '';
+        elements.aesResult.value = '';
+    },
+
+    displayRsaResult(data, modulus = '', privateKey = '') {
+        elements.rsaResult.value = data.encrypted || data.decrypted;
+        if (data.encrypted) {
+            elements.rsaKeyText.textContent = `Public key (n, e): ${data.n}, ${data.e}\nPrivate key (d): ${data.d}`;
+        } else {
+            elements.rsaKeyText.textContent = `Used keys:\n  n: ${modulus}\n  d: ${privateKey}`;
+        }
+        elements.rsaKeyDisplay.style.display = 'block';
+    },
+
+    displayHmacResult(hmac, key) {
+        elements.hmacResult.value = hmac;
+        elements.hmacKeyText.textContent = `Key: ${key}`;
+        elements.hmacKeyDisplay.style.display = 'block';
+    },
+
+    displayAesResult(data, key) {
+        elements.aesResult.value = data.encrypted || data.decrypted;
+        elements.aesKeyText.textContent = `Key: ${key}`;
+        elements.aesKeyDisplay.style.display = 'block';
+    }
+};
+
+// Event handlers
+async function handleRsa(inputText, isEncrypt) {
+    if (isEncrypt) {
+        const data = await cryptoService.rsaEncrypt(inputText);
+        ui.displayRsaResult(data);
+    } else {
+        const { hexInput, modulus, privateKey } = validation.validateRsaDecryption(inputText);
+        const data = await cryptoService.rsaDecrypt(hexInput, modulus, privateKey);
+        ui.displayRsaResult(data, modulus, privateKey);
+    }
 }
 
-// Add event listeners
-updateVisibility();
-rsaCheckbox.addEventListener('change', updateVisibility);
-hmacCheckbox.addEventListener('change', updateVisibility);
-aesCheckbox.addEventListener('change', updateVisibility);
-encryptRadio.addEventListener('change', updateVisibility);
-decryptRadio.addEventListener('change', updateVisibility);
+async function handleHmac(inputText) {
+    const key = elements.hmacKeyInput.value;
+    const data = await cryptoService.hmacSign(inputText, key);
+    ui.displayHmacResult(data.hmac, key);
+}
 
-startButton.addEventListener('click', async function () {
-  const inputText = document.querySelector('.text-input').value.trim();
-  const isEncrypt = encryptRadio.checked;
-  const operation = isEncrypt ? 'Encrypting' : 'Decrypting';
+async function handleAes(inputText, isEncrypt) {
+    const key = elements.aesKeyInput.value;
+    const data = isEncrypt 
+        ? await cryptoService.aesEncrypt(inputText, key)
+        : await cryptoService.aesDecrypt(inputText, key);
+    ui.displayAesResult(data, key);
+}
 
-  // Reset previous results and errors
-  errorMessage.style.display = 'none';
-  rsaResult.value = '';
-  hmacResult.value = '';
-  aesResult.value = '';
-
-  if (!rsaCheckbox.checked && !hmacCheckbox.checked && !aesCheckbox.checked) {
-    errorMessage.textContent = 'Please select at least one algorithm!';
-    errorMessage.style.display = 'block';
-    return;
-  }
-
-  if (!inputText) {
-    errorMessage.textContent = 'Please enter some text to process!';
-    errorMessage.style.display = 'block';
-    return;
-  }
-
-  if (hmacCheckbox.checked && !hmacKeyInput.value.trim()) {
-    errorMessage.textContent = 'Please enter an HMAC key!';
-    errorMessage.style.display = 'block';
-    return;
-  }
-
-  if (aesCheckbox.checked && !aesKeyInput.value.trim()) {
-    errorMessage.textContent = 'Please enter an AES key!';
-    errorMessage.style.display = 'block';
-    return;
-  }
-
-  if (rsaCheckbox.checked && !isEncrypt) {
-    // Additional validation for RSA decryption
-    const hexInput = inputText.replace(/\s+/g, '');  // Remove all whitespace
-    const modulus = rsaModulus.value.trim();
-    const privateKey = rsaPrivate.value.trim();
-
-    if (!hexInput || !modulus || !privateKey) {
-      errorMessage.textContent = 'Please enter the encrypted message (in hex format), modulus (n), and private key (d)!';
-      errorMessage.style.display = 'block';
-      return;
-    }
-
-    // Validate hex format for RSA decryption
-    if (!/^[0-9A-Fa-f]+$/.test(hexInput)) {
-      errorMessage.textContent = 'For RSA decryption, the input must be in hexadecimal format (e.g., "1A2B3C")';
-      errorMessage.style.display = 'block';
-      return;
-    }
-
-    // Basic key format validation
-    if (!/^\d+$/.test(modulus) || !/^\d+$/.test(privateKey)) {
-      errorMessage.textContent = 'The modulus (n) and private key (d) must be valid positive integers';
-      errorMessage.style.display = 'block';
-      return;
-    }
-
-    // Additional key validation
-    if (BigInt(modulus) <= BigInt(0) || BigInt(privateKey) <= BigInt(0)) {
-      errorMessage.textContent = 'The modulus (n) and private key (d) must be positive numbers';
-      errorMessage.style.display = 'block';
-      return;
-    }
-
+async function handleCryptoOperation(event) {
+    event.preventDefault();
+    
     try {
-      const response = await fetch('http://localhost:5000/rsa/decrypt', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          encrypted: hexInput,
-          n: modulus,
-          d: privateKey
-        })
-      });
+        validation.hideError();
+        ui.clearResults();
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Decryption failed');
-      }
+        const inputText = validation.validateInput();
+        const isEncrypt = elements.encryptRadio.checked;
 
-      const data = await response.json();
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      rsaResult.value = `${data.decrypted}`;
-      rsaKeyText.textContent = `Used keys:\n  n: ${modulus}\n  d: ${privateKey}`;
-      rsaKeyDisplay.style.display = 'block';
-
+        if (elements.rsaCheckbox.checked) {
+            await handleRsa(inputText, isEncrypt);
+        }
+        
+        if (elements.hmacCheckbox.checked) {
+            await handleHmac(inputText);
+        }
+        
+        if (elements.aesCheckbox.checked) {
+            await handleAes(inputText, isEncrypt);
+        }
     } catch (error) {
-      errorMessage.textContent = `Decryption failed: ${error.message}`;
-      errorMessage.style.display = 'block';
-      return;
+        validation.showError(error.message);
     }
-  } else if (rsaCheckbox.checked) {
-    // RSA encryption
-    try {
-      const response = await fetch('http://localhost:5000/rsa/encrypt', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: inputText
-        })
-      });
+}
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Encryption failed');
-      }
+ui.updateVisibility();
 
-      const data = await response.json();
-      if (data.error) {
-        throw new Error(data.error);
-      }
+elements.rsaCheckbox.addEventListener('change', ui.updateVisibility);
+elements.hmacCheckbox.addEventListener('change', ui.updateVisibility);
+elements.aesCheckbox.addEventListener('change', ui.updateVisibility);
 
-      rsaKeyText.textContent = 
-        `Public key (n, e): ${data.n}, ${data.e}\n` +
-        `Private key (d): ${data.d}`;
-      rsaResult.value = data.encrypted;
-      rsaKeyDisplay.style.display = 'block';
-
-    } catch (error) {
-      errorMessage.textContent = `Encryption failed: ${error.message}`;
-      errorMessage.style.display = 'block';
-      return;
-    }
-  }
-
-  try {
-    if (hmacCheckbox.checked) {
-      const key = hmacKeyInput.value;
-      const response = await fetch('http://localhost:5000/hmac/sign', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: inputText,
-          key: key
-        })
-      });
-      const data = await response.json();
-      hmacResult.value = data.hmac;
-      hmacKeyText.textContent = `Key: ${key}`;
-      hmacKeyDisplay.style.display = 'block';
-    }
-
-    if (aesCheckbox.checked) {
-      const key = aesKeyInput.value;
-      const endpoint = isEncrypt ? '/aes/encrypt' : '/aes/decrypt';
-      const body = isEncrypt ? 
-        { message: inputText, key: key } : 
-        { encrypted: inputText, key: key };
-
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body)
-      });
-
-      const data = await response.json();
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      aesResult.value = isEncrypt ? data.encrypted : data.decrypted;
-      aesKeyText.textContent = `Key: ${key}`;
-      aesKeyDisplay.style.display = 'block';
-    }
-  } catch (error) {
-    errorMessage.textContent = 'Error connecting to the server. Make sure the server is running.';
-    errorMessage.style.display = 'block';
-  }
-});
+elements.encryptRadio.addEventListener('change', ui.updateVisibility);
+elements.decryptRadio.addEventListener('change', ui.updateVisibility);
+elements.startButton.addEventListener('click', handleCryptoOperation);

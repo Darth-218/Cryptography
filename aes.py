@@ -98,4 +98,65 @@ def aes_encrypt_block(plaintext, key):
     return matrix_to_bytes(state)
 
 
+# inItialize an inverse S-box
+INV_SBOX = [0] * 256
+for i in range(256):
+    INV_SBOX[SBOX[i]] = i
+
+# substitute bytes using the inverse s-box
+def inv_sub_bytes(s):
+    for i in range(4):
+        for j in range(4):
+            s[i][j] = INV_SBOX[s[i][j]]
+    return s
+
+# Inverse shift rows of the state matrix
+def inv_shift_rows(s):
+    for i in range(1, 4):
+        s[i] = s[i][-i:] + s[i][:-i]
+    return s
+
+# xtime for multiplication by 2 in GF(2^8)
+def xtime(a):
+    return ((a << 1) ^ 0x1B) & 0xFF if a & 0x80 else a << 1
+
+# Multiplication helpers using xtime
+def mul_by_2(x): return xtime(x)
+def mul_by_3(x): return xtime(x) ^ x
+def mul_by_9(x): return xtime(xtime(xtime(x))) ^ x
+def mul_by_11(x): return xtime(xtime(xtime(x)) ^ x) ^ x
+def mul_by_13(x): return xtime(xtime(xtime(x) ^ x)) ^ x
+def mul_by_14(x): return xtime(xtime(xtime(x) ^ x) ^ x)
+
+def inv_mix_columns(s):
+    for i in range(4):
+        a = s[0][i]
+        b = s[1][i]
+        c = s[2][i]
+        d = s[3][i]
+
+        s[0][i] = mul_by_14(a) ^ mul_by_11(b) ^ mul_by_13(c) ^ mul_by_9(d)
+        s[1][i] = mul_by_9(a) ^ mul_by_14(b) ^ mul_by_11(c) ^ mul_by_13(d)
+        s[2][i] = mul_by_13(a) ^ mul_by_9(b) ^ mul_by_14(c) ^ mul_by_11(d)
+        s[3][i] = mul_by_11(a) ^ mul_by_13(b) ^ mul_by_9(c) ^ mul_by_14(d)
+    return s
+
+# AES Decryption Function
+def aes_decrypt_block(ciphertext, key):
+    state = bytes_to_matrix(ciphertext)
+    round_keys = key_expansion(key)
+
+    state = add_round_key(state, round_keys[10])
+    for r in range(9, 0, -1):
+        state = inv_shift_rows(state)
+        state = inv_sub_bytes(state)
+        state = add_round_key(state, round_keys[r])
+        state = inv_mix_columns(state)
+    state = inv_shift_rows(state)
+    state = inv_sub_bytes(state)
+    state = add_round_key(state, round_keys[0])
+    return matrix_to_bytes(state)
+
+
+
 

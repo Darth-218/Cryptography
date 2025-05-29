@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cryptography Tool</title>
+  <title>CSCI-208 Final Project</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -32,7 +32,6 @@
     .options-column {
       flex: 1;
       padding: 20px;
-      border-left: 1px solid #eee;
     }
 
     .text-input {
@@ -69,7 +68,7 @@
       padding: 10px 20px;
       text-align: center;
       font-size: 16px;
-      margin: 10px 0;
+      margin: 10px 10px;
       cursor: pointer;
       border-radius: 4px;
       width: 100%;
@@ -93,15 +92,12 @@
     }
 
     .key-display {
-      background-color: #f8f9fa;
-      border: 1px solid #e9ecef;
       border-radius: 4px;
-      padding: 10px;
       margin-bottom: 10px;
       display: none;
     }
 
-    .key-display h4 {
+    .key-display h3 {
       margin: 0 0 8px 0;
       color: #495057;
       font-size: 14px;
@@ -162,7 +158,7 @@
 <body>
   <div class="container">
     <div class="main-content">
-      <h2>Cryptography Tool</h2>
+      <h1>Cryptography</h1>
       <textarea class="text-input" placeholder="Enter your text to encrypt, or hex format for RSA decryption (e.g., 1A2B3C)..."></textarea>
 
       <div class="mode-selection">
@@ -203,22 +199,22 @@
       <div class="error-message" id="errorMessage"></div>
 
       <div class="result-areas">
-        <h3>Results</h3>
+        <h2>Results</h2>
         
         <div class="key-display" id="rsaKeyDisplay" style="display: none;">
-          <h4>RSA Keys</h4>
+          <h3>RSA</h3>
           <pre class="key-text" id="rsaKeyText"></pre>
         </div>
         <textarea class="result-area" id="rsaResult" placeholder="RSA result will appear here" readonly></textarea>
         
         <div class="key-display" id="hmacKeyDisplay" style="display: none;">
-          <h4>HMAC Key</h4>
+          <h3>HMAC</h3>
           <pre class="key-text" id="hmacKeyText"></pre>
         </div>
         <textarea class="result-area" id="hmacResult" placeholder="HMAC result will appear here" readonly></textarea>
         
         <div class="key-display" id="aesKeyDisplay" style="display: none;">
-          <h4>AES Key</h4>
+          <h3>AES</h3>
           <pre class="key-text" id="aesKeyText"></pre>
         </div>
         <textarea class="result-area" id="aesResult" placeholder="AES result will appear here" readonly></textarea>
@@ -283,6 +279,13 @@
 
     function updateVisibility() {
       const isEncrypt = encryptRadio.checked;
+
+      // Hide HMAC option completely in decrypt mode
+      const hmacOption = document.querySelector('[for="hmacCheckbox"]').parentElement;
+      hmacOption.style.display = isEncrypt ? 'block' : 'none';
+      if (!isEncrypt) {
+        hmacCheckbox.checked = false;
+      }
 
       rsaResult.style.display = rsaCheckbox.checked ? 'block' : 'none';
       rsaKeyDisplay.style.display = rsaCheckbox.checked ? 'block' : 'none';
@@ -427,12 +430,11 @@
           }
 
           rsaKeyText.textContent = 
-            `Public key (n, e):\n  n: ${data.n}\n  e: ${data.e}\n` +
-            `Private key (d):\n  d: ${data.d}`;
+            `Public key (n, e): ${data.n}, ${data.e}\n` +
+            `Private key (d): ${data.d}`;
           rsaResult.value = data.encrypted;
 
           // Display RSA keys
-          rsaKeyText.textContent = `Public key (n, e):\n  n: ${data.n}\n  e: ${data.e}\n\nPrivate key (d):\n  d: ${data.d}`;
           rsaKeyDisplay.style.display = 'block';
 
         } catch (error) {
@@ -456,10 +458,10 @@
             })
           });
           const data = await response.json();
-          hmacResult.value = `${data.hmac}\n\nKey: "${key}"`;
+          hmacResult.value = `${data.hmac}`;
 
           // Display HMAC key
-          hmacKeyText.textContent = key;
+          hmacKeyText.textContent = `Key: ${key}`;
           hmacKeyDisplay.style.display = 'block';
         }
 
@@ -484,11 +486,11 @@
           }
 
           aesResult.value = isEncrypt ?
-            `${data.encrypted}\n\nKey: "${key}"` :
-            `${data.decrypted}\n\nKey: "${key}"`;
+            `${data.encrypted}` :
+            `${data.decrypted}`;
 
           // Display AES key
-          aesKeyText.textContent = key;
+          aesKeyText.textContent = `Key: ${key}`;
           aesKeyDisplay.style.display = 'block';
         }
       } catch (error) {

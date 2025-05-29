@@ -1,263 +1,501 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cryptography Tool</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #f5f5f5;
-        }
-        
-        .container {
-            display: flex;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            width: 800px;
-        }
-        
-        .main-content {
-            flex: 3;
-            padding: 20px;
-        }
-        
-        .options-column {
-            flex: 1;
-            padding: 20px;
-            border-left: 1px solid #eee;
-        }
-        
-        .text-input {
-            width: 100%;
-            height: 150px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            resize: none;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-        
-        .algorithm-options {
-            margin-bottom: 30px;
-        }
-        
-        .algorithm-option {
-            margin-bottom: 10px;
-        }
-        
-        .mode-selection {
-            margin-bottom: 20px;
-        }
-        
-        .mode-option {
-            margin-bottom: 10px;
-        }
-        
-        .action-button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 10px 0;
-            cursor: pointer;
-            border-radius: 4px;
-            width: 100%;
-        }
-        
-        .result-areas {
-            margin-top: 20px;
-        }
-        
-        .result-area {
-            width: 100%;
-            height: 80px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            resize: none;
-            font-size: 14px;
-            margin-bottom: 15px;
-            background-color: #f9f9f9;
-            display: none;
-        }
-        
-        h2 {
-            color: #333;
-            margin-top: 0;
-        }
-        
-        label {
-            margin-left: 8px;
-            cursor: pointer;
-        }
-        
-        input[type="checkbox"], input[type="radio"] {
-            cursor: pointer;
-        }
-        
-        .error-message {
-            color: #d32f2f;
-            background-color: #fde8e8;
-            padding: 10px;
-            border-radius: 4px;
-            margin-top: 10px;
-            display: none;
-        }
-        
-        .hmac-key-container {
-            margin-top: 15px;
-            display: none;
-        }
-        
-        .hmac-key-input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-top: 5px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cryptography Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f5f5f5;
+    }
+
+    .container {
+      display: flex;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      width: 800px;
+    }
+
+    .main-content {
+      flex: 3;
+      padding: 20px;
+    }
+
+    .options-column {
+      flex: 1;
+      padding: 20px;
+      border-left: 1px solid #eee;
+    }
+
+    .text-input {
+      width: 100%;
+      height: 150px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      resize: none;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .algorithm-options {
+      margin-bottom: 30px;
+    }
+
+    .algorithm-option {
+      margin-bottom: 10px;
+    }
+
+    .mode-selection {
+      margin-bottom: 20px;
+    }
+
+    .mode-option {
+      margin-bottom: 10px;
+    }
+
+    .action-button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      text-align: center;
+      font-size: 16px;
+      margin: 10px 0;
+      cursor: pointer;
+      border-radius: 4px;
+      width: 100%;
+    }
+
+    .result-areas {
+      margin-top: 20px;
+    }
+
+    .result-area {
+      width: 100%;
+      height: 80px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      resize: none;
+      font-size: 14px;
+      margin-bottom: 15px;
+      background-color: #f9f9f9;
+      display: none;
+    }
+
+    .key-display {
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    .key-display h4 {
+      margin: 0 0 8px 0;
+      color: #495057;
+      font-size: 14px;
+    }
+
+    .key-text {
+      margin: 0;
+      font-family: monospace;
+      font-size: 13px;
+      white-space: pre-wrap;
+      color: #212529;
+    }
+
+    h2 {
+      color: #333;
+      margin-top: 0;
+    }
+
+    label {
+      margin-left: 8px;
+      cursor: pointer;
+    }
+
+    input[type="checkbox"], input[type="radio"] {
+      cursor: pointer;
+    }
+
+    .error-message {
+      color: #d32f2f;
+      background-color: #fde8e8;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .hmac-key-container,
+    .rsa-key-container,
+    .aes-key-container {
+      margin-top: 15px;
+      display: none;
+    }
+
+    .key-input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+    }
+
+    .rsa-key-fields {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="main-content">
-            <h2>Cryptography Tool</h2>
-            <textarea class="text-input" placeholder="Enter your text here..."></textarea>
-            
-            <div class="mode-selection">
-                <h3>Operation Mode</h3>
-                <div class="mode-option">
-                    <input type="radio" id="encrypt" name="mode" value="encrypt" checked>
-                    <label for="encrypt">Encrypt</label>
-                </div>
-                <div class="mode-option">
-                    <input type="radio" id="decrypt" name="mode" value="decrypt">
-                    <label for="decrypt">Decrypt</label>
-                </div>
-            </div>
-            
-            <div class="hmac-key-container" id="hmacKeyContainer">
-                <label for="hmacKey">HMAC Key:</label>
-                <input type="text" class="hmac-key-input" id="hmacKey" placeholder="Enter HMAC secret key">
-            </div>
-            
-            <button class="action-button" id="startButton">Start</button>
-            
-            <div class="error-message" id="errorMessage">
-                Please select at least one algorithm!
-            </div>
-            
-            <div class="result-areas">
-                <h3>Results</h3>
-                <textarea class="result-area" id="rsaResult" placeholder="RSA result will appear here" readonly></textarea>
-                <textarea class="result-area" id="hmacResult" placeholder="HMAC result will appear here" readonly></textarea>
-                <textarea class="result-area" id="aesResult" placeholder="AES result will appear here" readonly></textarea>
-            </div>
+  <div class="container">
+    <div class="main-content">
+      <h2>Cryptography Tool</h2>
+      <textarea class="text-input" placeholder="Enter your text to encrypt, or hex format for RSA decryption (e.g., 1A2B3C)..."></textarea>
+
+      <div class="mode-selection">
+        <h3>Operation Mode</h3>
+        <div class="mode-option">
+          <input type="radio" id="encrypt" name="mode" value="encrypt" checked>
+          <label for="encrypt">Encrypt</label>
         </div>
+        <div class="mode-option">
+          <input type="radio" id="decrypt" name="mode" value="decrypt">
+          <label for="decrypt">Decrypt</label>
+        </div>
+      </div>
+
+      <div class="hmac-key-container" id="hmacKeyContainer">
+        <label for="hmacKey">HMAC Key:</label>
+        <input type="text" class="key-input" id="hmacKey" placeholder="Enter HMAC secret key">
+      </div>
+
+      <div class="aes-key-container" id="aesKeyContainer">
+        <label for="aesKey">AES Key:</label>
+        <input type="text" class="key-input" id="aesKey" placeholder="Enter AES key">
+      </div>
+
+      <div class="rsa-key-container" id="rsaKeyContainer">
+        <div class="rsa-key-fields" id="rsaEncryptFields"></div>
+        <div class="rsa-key-fields" id="rsaDecryptFields">
+          <label for="rsaModulus">Modulus (n):</label>
+          <input type="text" class="key-input" id="rsaModulus" placeholder="Enter modulus n">
+
+          <label for="rsaPrivate">Private Key (d):</label>
+          <input type="text" class="key-input" id="rsaPrivate" placeholder="Enter private exponent d">
+        </div>
+      </div>
+
+      <button class="action-button" id="startButton">Start</button>
+
+      <div class="error-message" id="errorMessage"></div>
+
+      <div class="result-areas">
+        <h3>Results</h3>
         
-        <div class="options-column">
-            <h3>Algorithms</h3>
-            <div class="algorithm-options">
-                <div class="algorithm-option">
-                    <input type="checkbox" id="rsaCheckbox" name="algorithm" value="rsa">
-                    <label for="rsaCheckbox">RSA</label>
-                </div>
-                <div class="algorithm-option">
-                    <input type="checkbox" id="hmacCheckbox" name="algorithm" value="hmac">
-                    <label for="hmacCheckbox">HMAC</label>
-                </div>
-                <div class="algorithm-option">
-                    <input type="checkbox" id="aesCheckbox" name="algorithm" value="aes">
-                    <label for="aesCheckbox">AES</label>
-                </div>
-            </div>
+        <div class="key-display" id="rsaKeyDisplay" style="display: none;">
+          <h4>RSA Keys</h4>
+          <pre class="key-text" id="rsaKeyText"></pre>
         </div>
+        <textarea class="result-area" id="rsaResult" placeholder="RSA result will appear here" readonly></textarea>
+        
+        <div class="key-display" id="hmacKeyDisplay" style="display: none;">
+          <h4>HMAC Key</h4>
+          <pre class="key-text" id="hmacKeyText"></pre>
+        </div>
+        <textarea class="result-area" id="hmacResult" placeholder="HMAC result will appear here" readonly></textarea>
+        
+        <div class="key-display" id="aesKeyDisplay" style="display: none;">
+          <h4>AES Key</h4>
+          <pre class="key-text" id="aesKeyText"></pre>
+        </div>
+        <textarea class="result-area" id="aesResult" placeholder="AES result will appear here" readonly></textarea>
+      </div>
     </div>
 
-    <script>
-        // Get all elements
-        const rsaCheckbox = document.getElementById('rsaCheckbox');
-        const hmacCheckbox = document.getElementById('hmacCheckbox');
-        const aesCheckbox = document.getElementById('aesCheckbox');
-        const rsaResult = document.getElementById('rsaResult');
-        const hmacResult = document.getElementById('hmacResult');
-        const aesResult = document.getElementById('aesResult');
-        const errorMessage = document.getElementById('errorMessage');
-        const startButton = document.getElementById('startButton');
-        const hmacKeyContainer = document.getElementById('hmacKeyContainer');
-        const hmacKeyInput = document.getElementById('hmacKey');
+    <div class="options-column">
+      <h3>Algorithms</h3>
+      <div class="algorithm-options">
+        <div class="algorithm-option">
+          <input type="checkbox" id="rsaCheckbox" name="algorithm" value="rsa">
+          <label for="rsaCheckbox">RSA</label>
+        </div>
+        <div class="algorithm-option">
+          <input type="checkbox" id="hmacCheckbox" name="algorithm" value="hmac">
+          <label for="hmacCheckbox">HMAC</label>
+        </div>
+        <div class="algorithm-option">
+          <input type="checkbox" id="aesCheckbox" name="algorithm" value="aes">
+          <label for="aesCheckbox">AES</label>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        // Set initial visibility
-        updateVisibility();
+  <script>
+    const rsaCheckbox = document.getElementById('rsaCheckbox');
+    const hmacCheckbox = document.getElementById('hmacCheckbox');
+    const aesCheckbox = document.getElementById('aesCheckbox');
+    const rsaResult = document.getElementById('rsaResult');
+    const hmacResult = document.getElementById('hmacResult');
+    const aesResult = document.getElementById('aesResult');
+    const errorMessage = document.getElementById('errorMessage');
+    const startButton = document.getElementById('startButton');
+    const hmacKeyInput = document.getElementById('hmacKey');
+    const aesKeyInput = document.getElementById('aesKey');
+    const hmacKeyContainer = document.getElementById('hmacKeyContainer');
+    const aesKeyContainer = document.getElementById('aesKeyContainer');
+    const rsaKeyContainer = document.getElementById('rsaKeyContainer');
+    const rsaEncryptFields = document.getElementById('rsaEncryptFields');
+    const rsaDecryptFields = document.getElementById('rsaDecryptFields');
+    const encryptRadio = document.getElementById('encrypt');
+    const decryptRadio = document.getElementById('decrypt');
+    const rsaModulus = document.getElementById('rsaModulus');
+    const rsaPrivate = document.getElementById('rsaPrivate');
 
-        // Add event listeners
-        rsaCheckbox.addEventListener('change', updateVisibility);
-        hmacCheckbox.addEventListener('change', updateVisibility);
-        aesCheckbox.addEventListener('change', updateVisibility);
+    // Key display elements
+    const rsaKeyDisplay = document.getElementById('rsaKeyDisplay');
+    const hmacKeyDisplay = document.getElementById('hmacKeyDisplay');
+    const aesKeyDisplay = document.getElementById('aesKeyDisplay');
+    const rsaKeyText = document.getElementById('rsaKeyText');
+    const hmacKeyText = document.getElementById('hmacKeyText');
+    const aesKeyText = document.getElementById('aesKeyText');
 
-        // Update visibility of all dynamic elements
-        function updateVisibility() {
-            rsaResult.style.display = rsaCheckbox.checked ? 'block' : 'none';
-            hmacResult.style.display = hmacCheckbox.checked ? 'block' : 'none';
-            aesResult.style.display = aesCheckbox.checked ? 'block' : 'none';
-            hmacKeyContainer.style.display = hmacCheckbox.checked ? 'block' : 'none';
-            errorMessage.style.display = 'none';
+    updateVisibility();
+
+    rsaCheckbox.addEventListener('change', updateVisibility);
+    hmacCheckbox.addEventListener('change', updateVisibility);
+    aesCheckbox.addEventListener('change', updateVisibility);
+    encryptRadio.addEventListener('change', updateVisibility);
+    decryptRadio.addEventListener('change', updateVisibility);
+
+    function updateVisibility() {
+      const isEncrypt = encryptRadio.checked;
+
+      rsaResult.style.display = rsaCheckbox.checked ? 'block' : 'none';
+      rsaKeyDisplay.style.display = rsaCheckbox.checked ? 'block' : 'none';
+      hmacResult.style.display = hmacCheckbox.checked ? 'block' : 'none';
+      hmacKeyDisplay.style.display = hmacCheckbox.checked ? 'block' : 'none';
+      aesResult.style.display = aesCheckbox.checked ? 'block' : 'none';
+      aesKeyDisplay.style.display = aesCheckbox.checked ? 'block' : 'none';
+
+      hmacKeyContainer.style.display = hmacCheckbox.checked ? 'block' : 'none';
+      aesKeyContainer.style.display = aesCheckbox.checked ? 'block' : 'none';
+      rsaKeyContainer.style.display = rsaCheckbox.checked ? 'block' : 'none';
+
+      if (rsaCheckbox.checked) {
+        rsaEncryptFields.style.display = isEncrypt ? 'block' : 'none';
+        rsaDecryptFields.style.display = isEncrypt ? 'none' : 'block';
+      }
+
+      errorMessage.style.display = 'none';
+    }
+
+    startButton.addEventListener('click', async function () {
+      const inputText = document.querySelector('.text-input').value.trim();
+      const isEncrypt = encryptRadio.checked;
+      const operation = isEncrypt ? 'Encrypting' : 'Decrypting';
+
+      // Reset previous results and errors
+      errorMessage.style.display = 'none';
+      rsaResult.value = '';
+      hmacResult.value = '';
+      aesResult.value = '';
+
+      if (!rsaCheckbox.checked && !hmacCheckbox.checked && !aesCheckbox.checked) {
+        errorMessage.textContent = 'Please select at least one algorithm!';
+        errorMessage.style.display = 'block';
+        return;
+      }
+
+      if (!inputText) {
+        errorMessage.textContent = 'Please enter some text to process!';
+        errorMessage.style.display = 'block';
+        return;
+      }
+
+      if (hmacCheckbox.checked && !hmacKeyInput.value.trim()) {
+        errorMessage.textContent = 'Please enter an HMAC key!';
+        errorMessage.style.display = 'block';
+        return;
+      }
+
+      if (aesCheckbox.checked && !aesKeyInput.value.trim()) {
+        errorMessage.textContent = 'Please enter an AES key!';
+        errorMessage.style.display = 'block';
+        return;
+      }
+
+      if (rsaCheckbox.checked && !isEncrypt) {
+        // Additional validation for RSA decryption
+        const hexInput = inputText.replace(/\s+/g, '');  // Remove all whitespace
+        const modulus = rsaModulus.value.trim();
+        const privateKey = rsaPrivate.value.trim();
+
+        if (!hexInput || !modulus || !privateKey) {
+          errorMessage.textContent = 'Please enter the encrypted message (in hex format), modulus (n), and private key (d)!';
+          errorMessage.style.display = 'block';
+          return;
         }
 
-        // Process button click
-        startButton.addEventListener('click', function() {
-            const inputText = document.querySelector('.text-input').value;
-            const isEncrypt = document.getElementById('encrypt').checked;
-            const operation = isEncrypt ? 'Encrypting' : 'Decrypting';
-            
-            // Check if at least one algorithm is selected
-            if (!rsaCheckbox.checked && !hmacCheckbox.checked && !aesCheckbox.checked) {
-                errorMessage.style.display = 'block';
-                return;
-            }
-            
-            // Check if HMAC is selected but key is empty
-            if (hmacCheckbox.checked && !hmacKeyInput.value.trim()) {
-                errorMessage.textContent = 'Please enter an HMAC key!';
-                errorMessage.style.display = 'block';
-                return;
-            }
-            
-            // Hide error if it was shown previously
-            errorMessage.style.display = 'none';
-            
-            // Clear previous results
-            rsaResult.value = '';
-            hmacResult.value = '';
-            aesResult.value = '';
-            
-            // Process selected algorithms
-            if (rsaCheckbox.checked) {
-                rsaResult.value = `${operation} with RSA...\n(Simulated result for "${inputText}")`;
-            }
-            
-            if (hmacCheckbox.checked) {
-                const key = hmacKeyInput.value;
-                hmacResult.value = `${operation} with HMAC...\nKey: "${key}"\n(Simulated result for "${inputText}")`;
-            }
-            
-            if (aesCheckbox.checked) {
-                aesResult.value = `${operation} with AES...\n(Simulated result for "${inputText}")`;
-            }
-        });
-    </script>
+        // Validate hex format for RSA decryption
+        if (!/^[0-9A-Fa-f]+$/.test(hexInput)) {
+          errorMessage.textContent = 'For RSA decryption, the input must be in hexadecimal format (e.g., "1A2B3C")';
+          errorMessage.style.display = 'block';
+          return;
+        }
+
+        // Basic key format validation
+        if (!/^\d+$/.test(modulus) || !/^\d+$/.test(privateKey)) {
+          errorMessage.textContent = 'The modulus (n) and private key (d) must be valid positive integers';
+          errorMessage.style.display = 'block';
+          return;
+        }
+
+        // Additional key validation
+        if (BigInt(modulus) <= BigInt(0) || BigInt(privateKey) <= BigInt(0)) {
+          errorMessage.textContent = 'The modulus (n) and private key (d) must be positive numbers';
+          errorMessage.style.display = 'block';
+          return;
+        }
+
+        try {
+          const response = await fetch('http://localhost:5000/rsa/decrypt', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              encrypted: hexInput,
+              n: modulus,
+              d: privateKey
+            })
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Decryption failed');
+          }
+
+          const data = await response.json();
+          if (data.error) {
+            throw new Error(data.error);
+          }
+
+          rsaResult.value =
+            `Decrypted message: ${data.decrypted}\n` +
+            `Used keys:\n  n: ${modulus}\n  d: ${privateKey}`;
+
+        } catch (error) {
+          errorMessage.textContent = `Decryption failed: ${error.message}`;
+          errorMessage.style.display = 'block';
+          return;
+        }
+      } else if (rsaCheckbox.checked) {
+        // RSA encryption
+        try {
+          const response = await fetch('http://localhost:5000/rsa/encrypt', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              message: inputText
+            })
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Encryption failed');
+          }
+
+          const data = await response.json();
+          if (data.error) {
+            throw new Error(data.error);
+          }
+
+          rsaKeyText.textContent = 
+            `Public key (n, e):\n  n: ${data.n}\n  e: ${data.e}\n` +
+            `Private key (d):\n  d: ${data.d}`;
+          rsaResult.value = data.encrypted;
+
+          // Display RSA keys
+          rsaKeyText.textContent = `Public key (n, e):\n  n: ${data.n}\n  e: ${data.e}\n\nPrivate key (d):\n  d: ${data.d}`;
+          rsaKeyDisplay.style.display = 'block';
+
+        } catch (error) {
+          errorMessage.textContent = `Encryption failed: ${error.message}`;
+          errorMessage.style.display = 'block';
+          return;
+        }
+      }
+
+      try {
+        if (hmacCheckbox.checked) {
+          const key = hmacKeyInput.value;
+          const response = await fetch('http://localhost:5000/hmac/sign', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              message: inputText,
+              key: key
+            })
+          });
+          const data = await response.json();
+          hmacResult.value = `${data.hmac}\n\nKey: "${key}"`;
+
+          // Display HMAC key
+          hmacKeyText.textContent = key;
+          hmacKeyDisplay.style.display = 'block';
+        }
+
+        if (aesCheckbox.checked) {
+          const key = aesKeyInput.value;
+          const endpoint = isEncrypt ? '/aes/encrypt' : '/aes/decrypt';
+          const body = isEncrypt ? 
+            { message: inputText, key: key } : 
+            { encrypted: inputText, key: key };
+
+          const response = await fetch(`http://localhost:5000${endpoint}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body)
+          });
+
+          const data = await response.json();
+          if (data.error) {
+            throw new Error(data.error);
+          }
+
+          aesResult.value = isEncrypt ?
+            `${data.encrypted}\n\nKey: "${key}"` :
+            `${data.decrypted}\n\nKey: "${key}"`;
+
+          // Display AES key
+          aesKeyText.textContent = key;
+          aesKeyDisplay.style.display = 'block';
+        }
+      } catch (error) {
+        errorMessage.textContent = 'Error connecting to the server. Make sure the server is running.';
+        errorMessage.style.display = 'block';
+      }
+    });
+  </script>
 </body>
 </html>

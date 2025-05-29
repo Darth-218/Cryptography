@@ -2,6 +2,7 @@
 
 from time import time, perf_counter
 
+
 def gcd(a: int, b: int) -> int:
     while b:
         a, b = b, a % b
@@ -254,33 +255,36 @@ def generateKeys() -> tuple[int, int, int]:
 
 def encrypt(message: str, e: int, n: int) -> bytes:
     try:
-        message_bytes = message.encode('utf-8')
+        message_bytes = message.encode("utf-8")
     except UnicodeEncodeError:
         raise ValueError("Message contains invalid characters for UTF-8 encoding")
-        
+
     max_block_size = (n.bit_length() - 1) // 8
     if max_block_size < 1:
         raise ValueError("Key size is too small to encrypt any data")
-        
+
     n_byte_size = (n.bit_length() + 7) // 8
-    
-    blocks = [message_bytes[i : i + max_block_size] for i in range(0, len(message_bytes), max_block_size)]
+
+    blocks = [
+        message_bytes[i : i + max_block_size]
+        for i in range(0, len(message_bytes), max_block_size)
+    ]
     encrypted_bytes = b""
-    
+
     for i, block in enumerate(blocks):
         if len(block) < max_block_size:
             padding_length = max_block_size - len(block)
             block = block + bytes([padding_length] * padding_length)
-            
+
         m = int.from_bytes(block, byteorder="big")
         if m >= n:
             raise ValueError(f"Message block {i+1} is too large for the given key size")
-            
+
         c = pow(m, e, n)
-        
+
         encrypted_block = c.to_bytes(n_byte_size, byteorder="big")
         encrypted_bytes += encrypted_block
-        
+
     return encrypted_bytes
 
 
@@ -288,19 +292,22 @@ def decrypt(encrypted_bytes: bytes, d: int, n: int) -> str:
     n_byte_size = (n.bit_length() + 7) // 8
     max_block_size = (n.bit_length() - 1) // 8
     decrypted_bytes = b""
-    blocks = [encrypted_bytes[i:i+n_byte_size] for i in range(0, len(encrypted_bytes), n_byte_size)]
-    
+    blocks = [
+        encrypted_bytes[i : i + n_byte_size]
+        for i in range(0, len(encrypted_bytes), n_byte_size)
+    ]
+
     if not blocks:
         raise ValueError("No data to decrypt")
-    
+
     for i, block in enumerate(blocks):
         try:
             c = int.from_bytes(block, byteorder="big")
             if c >= n:
                 raise ValueError(f"Block {i+1}: Encrypted value is larger than modulus")
-            
+
             m_decrypted = pow(c, d, n)
-            
+
             if i < len(blocks) - 1:
                 block_bytes = m_decrypted.to_bytes(max_block_size, byteorder="big")
             else:
@@ -311,22 +318,24 @@ def decrypt(encrypted_bytes: bytes, d: int, n: int) -> str:
                     if block_len == 0:
                         block_len = 1
                     block_bytes = m_decrypted.to_bytes(block_len, byteorder="big")
-            
+
             decrypted_bytes += block_bytes
-            
+
         except ValueError as e:
             raise ValueError(f"Decryption failed: {str(e)}")
-    
+
     try:
         if decrypted_bytes:
             padding_length = decrypted_bytes[-1]
             if padding_length > 0 and padding_length <= max_block_size:
                 if all(x == padding_length for x in decrypted_bytes[-padding_length:]):
                     decrypted_bytes = decrypted_bytes[:-padding_length]
-        
-        return decrypted_bytes.decode('utf-8')
+
+        return decrypted_bytes.decode("utf-8")
     except UnicodeDecodeError:
-        raise ValueError("Decryption failed: The keys used for decryption don't match the encryption keys")
+        raise ValueError(
+            "Decryption failed: The keys used for decryption don't match the encryption keys"
+        )
 
 
 if __name__ == "__main__":
